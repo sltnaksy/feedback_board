@@ -1,0 +1,15 @@
+{
+  "name": "c1-feedback-backend",
+  "version": "1.0.0",
+  "description": "Backend API for C1 Docker Compose multi-service architecture assignment",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "pg": "^8.11.5"
+  }
+}

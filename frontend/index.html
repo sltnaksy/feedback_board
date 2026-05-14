@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feedback Board</title>
+<style>
+  :root {
+    --background: #f6f7fb;
+    --surface: rgba(255, 255, 255, 0.86);
+    --surface-strong: #ffffff;
+    --text: #172033;
+    --muted: #697386;
+    --border: #dfe6f0;
+    --primary: #7c8cff;
+    --primary-dark: #5563d9;
+    --secondary: #8bd3dd;
+    --success: #43b883;
+    --danger: #d65a5a;
+    --shadow: 0 18px 45px rgba(41, 50, 75, 0.08);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Inter, Arial, Helvetica, sans-serif;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    background:
+      radial-gradient(circle at 12% 10%, rgba(124, 140, 255, 0.18), transparent 28%),
+      radial-gradient(circle at 88% 82%, rgba(139, 211, 221, 0.24), transparent 30%),
+      linear-gradient(135deg, #f8fafc 0%, #f2f5fb 48%, #eef9fb 100%);
+  }
+
+  header {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 44px 0 22px;
+  }
+
+  .hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  .eyebrow {
+    margin: 0 0 8px;
+    color: var(--primary-dark);
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .hero h1 {
+    margin: 0;
+    font-size: clamp(2.1rem, 4vw, 3.2rem);
+    line-height: 1.05;
+    letter-spacing: -1.6px;
+    font-weight: 900;
+  }
+
+  .hero-description {
+    margin: 14px 0 0;
+    max-width: 680px;
+    color: var(--muted);
+    line-height: 1.65;
+    font-size: 1rem;
+  }
+
+  .system-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding: 8px 13px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid var(--border);
+    color: #42526b;
+    font-size: 0.84rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .system-status span {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--success);
+  }
+
+  main {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto 18px;
+    display: grid;
+    grid-template-columns: 390px 1fr;
+    gap: 22px;
+    align-items: start;
+    flex: 1;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid rgba(223, 230, 240, 0.9);
+    border-radius: 26px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
+  }
+
+  .form-card {
+    position: sticky;
+    top: 20px;
+  }
+
+  h2 {
+    margin: 0 0 18px;
+    font-size: 1.35rem;
+    letter-spacing: -0.4px;
+    font-weight: 850;
+  }
+
+  label {
+    display: block;
+    margin: 15px 0 7px;
+    font-size: 0.88rem;
+    font-weight: 800;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 13px 14px;
+    font-size: 0.96rem;
+    background: rgba(255, 255, 255, 0.82);
+    color: var(--text);
+    outline: none;
+    transition: 0.18s ease;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(124, 140, 255, 0.14);
+    background: #ffffff;
+  }
+
+  textarea {
+    min-height: 132px;
+    resize: vertical;
+  }
+
+  button {
+    width: 100%;
+    margin-top: 18px;
+    border: none;
+    border-radius: 15px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, #7c8cff, #8bd3dd);
+    color: white;
+    font-size: 0.96rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition: 0.2s ease;
+    box-shadow: 0 12px 24px rgba(124, 140, 255, 0.22);
+  }
+
+  button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 30px rgba(124, 140, 255, 0.27);
+  }
+
+  button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .status {
+    margin-top: 13px;
+    min-height: 22px;
+    font-size: 0.9rem;
+    font-weight: 750;
+  }
+
+  .status.success {
+    color: var(--success);
+  }
+
+  .status.error {
+    color: var(--danger);
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .stat-box {
+    background: rgba(255, 255, 255, 0.68);
+    border: 1px solid var(--border);
+    padding: 17px;
+    border-radius: 19px;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+    line-height: 1;
+    font-weight: 900;
+    color: var(--primary-dark);
+  }
+
+  .stat-label {
+    margin-top: 7px;
+    color: var(--muted);
+    font-size: 0.88rem;
+  }
+
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .toolbar input {
+    flex: 1;
+  }
+
+  .toolbar button {
+    width: auto;
+    margin: 0;
+    padding-inline: 18px;
+    background: #374151;
+    box-shadow: none;
+    white-space: nowrap;
+  }
+
+  .feedback-list {
+    display: grid;
+    gap: 13px;
+  }
+
+  .feedback-item {
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 17px;
+    background: rgba(255, 255, 255, 0.72);
+    transition: 0.18s ease;
+  }
+
+  .feedback-item:hover {
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  .feedback-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+
+  .name {
+    font-weight: 900;
+    font-size: 1rem;
+  }
+
+  .meta {
+    color: var(--muted);
+    font-size: 0.82rem;
+    margin-top: 4px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 6px 10px;
+    background: rgba(124, 140, 255, 0.12);
+    color: var(--primary-dark);
+    font-size: 0.8rem;
+    font-weight: 850;
+    white-space: nowrap;
+  }
+
+  .message {
+    margin: 10px 0 0;
+    line-height: 1.58;
+    color: #374151;
+    word-break: break-word;
+    font-size: 0.95rem;
+  }
+
+  .empty {
+    text-align: center;
+    padding: 34px 20px;
+    border: 1px dashed var(--border);
+    border-radius: 18px;
+    color: var(--muted);
+    background: rgba(255, 255, 255, 0.54);
+  }
+
+  footer {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto 18px;
+    padding: 11px 16px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.58);
+    border: 1px solid var(--border);
+  }
+
+  @media (max-width: 900px) {
+    .hero {
+      flex-direction: column;
+    }
+
+    main {
+      grid-template-columns: 1fr;
+    }
+
+    .form-card {
+      position: static;
+    }
+
+    .toolbar {
+      flex-direction: column;
+    }
+
+    .toolbar button {
+      width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+ <header>
+  <div class="hero">
+    <div>
+      <p class="eyebrow">Multi-Service Docker Compose Projekt</p>
+      <h1>Feedback Board</h1>
+      <p class="hero-description">
+        Feedbacks werden über ein Frontend erfasst, vom Backend verarbeitet
+        und persistent in PostgreSQL gespeichert.
+      </p>
+    </div>
+
+    <div class="system-status">
+      <span></span>
+      Backend online
+    </div>
+  </div>
+</header>
+
+  <main>
+    <section class="card form-card">
+      <h2>Neues Feedback</h2>
+
+      <form id="feedbackForm">
+        <label for="name">Name</label>
+        <input id="name" name="name" maxlength="80" placeholder="Zum Beispiel: Ali" required />
+
+        <label for="category">Kategorie</label>
+        <select id="category" name="category" required>
+          <option value="Docker">Docker</option>
+          <option value="Frontend">Frontend</option>
+          <option value="Backend">Backend</option>
+          <option value="Dokumentation">Dokumentation</option>
+          <option value="Allgemein">Allgemein</option>
+        </select>
+
+        <label for="rating">Bewertung</label>
+        <select id="rating" name="rating" required>
+          <option value="5">5 - Sehr gut</option>
+          <option value="4">4 - Gut</option>
+          <option value="3">3 - Okay</option>
+          <option value="2">2 - Verbesserbar</option>
+          <option value="1">1 - Schwach</option>
+        </select>
+
+        <label for="message">Nachricht</label>
+        <textarea id="message" name="message" maxlength="600" placeholder="Feedback schreiben..." required></textarea>
+
+        <button id="submitButton" type="submit">Feedback speichern</button>
+      </form>
+
+      <div id="status" class="status"></div>
+    </section>
+
+    <section class="card">
+      <h2>Übersicht</h2>
+
+      <div class="stats">
+        <div class="stat-box">
+          <div id="totalFeedbacks" class="stat-value">0</div>
+          <div class="stat-label">Feedbacks</div>
+        </div>
+        <div class="stat-box">
+          <div id="averageRating" class="stat-value">0</div>
+          <div class="stat-label">Durchschnitt</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <input id="searchInput" placeholder="Feedbacks filtern..." />
+        <button id="reloadButton" type="button">Neu laden</button>
+      </div>
+
+      <div id="feedbackList" class="feedback-list"></div>
+    </section>
+  </main>
+
+ <footer>
+  Frontend → Backend API → PostgreSQL · Persistente Daten mit Docker Volume
+</footer>
+
+  <script>
+    const form = document.getElementById("feedbackForm");
+    const statusBox = document.getElementById("status");
+    const submitButton = document.getElementById("submitButton");
+    const list = document.getElementById("feedbackList");
+    const searchInput = document.getElementById("searchInput");
+    const reloadButton = document.getElementById("reloadButton");
+    const totalFeedbacks = document.getElementById("totalFeedbacks");
+    const averageRating = document.getElementById("averageRating");
+
+    let cachedFeedbacks = [];
+
+    function setStatus(message, type) {
+      statusBox.textContent = message;
+      statusBox.className = "status " + type;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function formatDate(value) {
+      return new Date(value).toLocaleString("de-CH", {
+        dateStyle: "medium",
+        timeStyle: "short"
+      });
+    }
+
+    function renderFeedbacks() {
+      const filter = searchInput.value.toLowerCase().trim();
+
+      const visibleFeedbacks = cachedFeedbacks.filter((item) => {
+        return (
+          item.name.toLowerCase().includes(filter) ||
+          item.category.toLowerCase().includes(filter) ||
+          item.message.toLowerCase().includes(filter)
+        );
+      });
+
+      if (visibleFeedbacks.length === 0) {
+        list.innerHTML = '<div class="empty">Noch keine passenden Feedbacks vorhanden.</div>';
+        return;
+      }
+
+      list.innerHTML = visibleFeedbacks.map((item) => `
+        <article class="feedback-item">
+          <div class="feedback-top">
+            <div>
+              <div class="name">${escapeHtml(item.name)}</div>
+              <div class="meta">${formatDate(item.created_at)}</div>
+            </div>
+            <div class="badge">${escapeHtml(item.category)} · ${"★".repeat(item.rating)}</div>
+          </div>
+          <p class="message">${escapeHtml(item.message)}</p>
+        </article>
+      `).join("");
+    }
+
+    async function loadStats() {
+      const response = await fetch("/api/stats");
+
+      if (!response.ok) {
+        throw new Error("Statistik konnte nicht geladen werden.");
+      }
+
+      const stats = await response.json();
+      totalFeedbacks.textContent = stats.totalFeedbacks;
+      averageRating.textContent = stats.averageRating;
+    }
+
+    async function loadFeedbacks() {
+      const response = await fetch("/api/feedback");
+
+      if (!response.ok) {
+        throw new Error("Feedbacks konnten nicht geladen werden.");
+      }
+
+      cachedFeedbacks = await response.json();
+      renderFeedbacks();
+      await loadStats();
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      submitButton.disabled = true;
+      setStatus("Feedback wird gespeichert...", "");
+
+      const formData = new FormData(form);
+
+      const payload = {
+        name: formData.get("name"),
+        category: formData.get("category"),
+        rating: Number(formData.get("rating")),
+        message: formData.get("message")
+      };
+
+      try {
+        const response = await fetch("/api/feedback", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || "Feedback konnte nicht gespeichert werden.");
+        }
+
+        form.reset();
+        setStatus("Feedback wurde gespeichert.", "success");
+        await loadFeedbacks();
+      } catch (error) {
+        setStatus(error.message, "error");
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+
+    searchInput.addEventListener("input", renderFeedbacks);
+
+    reloadButton.addEventListener("click", async () => {
+      try {
+        setStatus("Daten werden neu geladen...", "");
+        await loadFeedbacks();
+        setStatus("Daten wurden aktualisiert.", "success");
+      } catch (error) {
+        setStatus(error.message, "error");
+      }
+    });
+
+    loadFeedbacks().catch((error) => {
+      setStatus(error.message, "error");
+      list.innerHTML = '<div class="empty">Backend ist momentan nicht erreichbar.</div>';
+    });
+  </script>
+</body>
+</html>
