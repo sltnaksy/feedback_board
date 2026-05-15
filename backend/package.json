@@ -1,11 +1,13 @@
 {
-  "name": "c1-feedback-backend",
+  "name": "feedback-backend",
   "version": "1.0.0",
   "description": "Backend API for C1 Docker Compose multi-service architecture assignment",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "test": "node --test",
+    "lint": "node --check src/index.js && node --check src/database.js && node --check src/logger.js && node --check src/healthcheck.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
