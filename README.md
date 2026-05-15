@@ -1,5 +1,5 @@
 ````markdown
-# Feedback Board
+# Feedback Board_C1 Auftrag
 
 Eine moderne Multi-Service-Anwendung mit Frontend, Backend-API und PostgreSQL.  
 Feedbacks werden über die API verarbeitet und persistent gespeichert.
@@ -312,3 +312,165 @@ Für diesen Auftrag wurde die Lösung jedoch bewusst kleiner gehalten, damit die
 
 ```
 ```
+README’ye aşağıdaki bölümü ekle. Bunu mevcut README’nin altına koyabilirsin.
+
+# C2 · CI/CD mit GitHub Actions
+
+## Ziel
+
+Für C2 wurde eine automatische CI/CD-Pipeline mit GitHub Actions umgesetzt.
+Bei jedem Push auf den Hauptbranch wird der Backend-Service automatisch getestet, als Docker-Image gebaut und in die GitHub Container Registry veröffentlicht.
+
+Die bestehende Anwendung aus C1 wurde als Basis verwendet.
+
+---
+
+## Workflow-Übersicht
+
+Die Pipeline besteht aus drei Stages:
+
+```text
+┌────────────┐
+│ Git Push   │
+└─────┬──────┘
+      ↓
+┌────────────┐
+│ Test Stage │
+│ npm test   │
+│ npm lint   │
+└─────┬──────┘
+      ↓
+┌────────────┐
+│ Build      │
+│ Docker     │
+└─────┬──────┘
+      ↓
+┌────────────┐
+│ Push GHCR  │
+│ latest/SHA │
+└────────────┘
+```
+
+Die Workflow-Datei befindet sich unter:
+
+```text
+.github/workflows/ci-cd.yml
+```
+
+---
+
+## Verwendete Technologien
+
+* GitHub Actions
+* Docker Buildx
+* GitHub Container Registry (GHCR)
+* Node.js Test Runner
+* Docker Layer Caching
+
+---
+
+## Test Stage
+
+Im ersten Schritt wird der Backend-Code automatisch geprüft.
+
+Folgende Befehle werden ausgeführt:
+
+```bash
+npm ci
+npm test
+npm run lint
+```
+
+Wenn Tests oder Linting fehlschlagen, wird die Pipeline sofort abgebrochen.
+
+---
+
+## Build Stage
+
+Nach erfolgreichen Tests wird automatisch ein Docker-Image des Backend-Services gebaut.
+
+Verwendet wird dabei der bestehende Multi-Stage-Dockerfile aus C1.
+
+---
+
+## Push Stage
+
+Das fertige Image wird automatisch in die GitHub Container Registry veröffentlicht.
+
+Repository:
+
+```text
+ghcr.io/sltnaksy/feedback_board-backend
+```
+
+---
+
+## Tagging-Strategie
+
+Die Images erhalten zwei Tags:
+
+| Tag     | Zweck                          |
+| ------- | ------------------------------ |
+| latest  | aktuelle Version               |
+| Git-SHA | eindeutige Nachvollziehbarkeit |
+
+Beispiel:
+
+```text
+ghcr.io/sltnaksy/feedback_board-backend:latest
+ghcr.io/sltnaksy/feedback_board-backend:a5cba6f
+```
+
+---
+
+## Secrets und Sicherheit
+
+Es werden keine Zugangsdaten im Repository gespeichert.
+
+Die Pipeline verwendet den GitHub Actions Token:
+
+```text
+secrets.GITHUB_TOKEN
+```
+
+Die Authentifizierung zur Registry erfolgt zur Laufzeit automatisch.
+
+---
+
+## Caching
+
+Die Pipeline verwendet Docker-Layer-Caching sowie npm-Caching.
+
+Dadurch laufen wiederholte Builds ohne grosse Änderungen deutlich schneller.
+
+---
+
+## Trigger
+
+Die Pipeline startet automatisch bei:
+
+```yaml
+push:
+  branches:
+    - main
+```
+
+Zusätzlich wurde `workflow_dispatch` aktiviert, damit der Workflow auch manuell gestartet werden kann.
+
+---
+
+## Reflexion
+
+Durch C2 wurde deutlich, wie wichtig automatisierte Pipelines für reproduzierbare Builds sind.
+Besonders hilfreich waren automatisierte Tests, Docker Buildx, Tagging-Strategien und das Arbeiten mit Container Registries.
+
+Rückblickend könnte die Pipeline später noch um automatische Deployments oder Security-Scans erweitert werden.
+
+---
+
+## KI-Deklaration
+
+Zur Unterstützung wurden KI-Tools für technische Fragen, Workflow-Strukturierung und Formulierungen verwendet.
+
+Die finale Pipeline wurde eigenständig integriert, getestet und nachvollzogen.
+
