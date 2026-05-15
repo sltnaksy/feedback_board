@@ -314,7 +314,7 @@ Für diesen Auftrag wurde die Lösung jedoch bewusst kleiner gehalten, damit die
 ```
 README’ye aşağıdaki bölümü ekle. Bunu mevcut README’nin altına koyabilirsin.
 
-# C2 · CI/CD mit GitHub Actions
+# C2_Auftrag- CI/CD mit GitHub Actions
 
 ## Ziel
 
@@ -476,7 +476,7 @@ Die finale Pipeline wurde eigenständig integriert, getestet und nachvollzogen.
 
 //
 
-# C3- Feedback Board – Cloud Deployment 
+# C3_Auftrag- Feedback Board – Cloud Deployment 
 
 ## Projektübersicht
 
