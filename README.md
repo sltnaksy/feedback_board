@@ -474,3 +474,4 @@ Zur Unterstützung wurden KI-Tools für technische Fragen, Workflow-Strukturieru
 
 Die finale Pipeline wurde eigenständig integriert, getestet und nachvollzogen.
 
+//
