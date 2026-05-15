@@ -475,3 +475,441 @@ Zur Unterstützung wurden KI-Tools für technische Fragen, Workflow-Strukturieru
 Die finale Pipeline wurde eigenständig integriert, getestet und nachvollzogen.
 
 //
+
+# C3- Feedback Board – Cloud Deployment 
+
+## Projektübersicht
+
+Dieses Projekt ist eine cloudbasierte Feedback-Anwendung mit:
+
+* einem Frontend-Service
+* einem Backend-Service
+* einer PostgreSQL-Datenbank
+
+Die Anwendung ermöglicht es Benutzerinnen und Benutzern, Feedback über eine Weboberfläche und eine REST-API zu erstellen und abzurufen.
+
+Das Projekt wurde im Rahmen des Auftrags C3 auf Railway deployt.
+
+---
+
+# Öffentliche URLs
+
+## Frontend
+
+```text
+https://easygoing-trust-production-8bb2.up.railway.app
+```
+
+## Backend Health-Endpoint
+
+```text
+https://feedbackboard-production-a7e4.up.railway.app/health
+```
+
+Beispielantwort:
+
+```json
+{
+  "status": "healthy",
+  "service": "backend",
+  "database": "reachable"
+}
+```
+
+---
+# Architektur
+
+```text
+                    ┌────────────────────┐
+                    │      Frontend      │
+                    │ Railway Service    │
+                    │      (Nginx)       │
+                    └─────────┬──────────┘
+                              │ HTTP API Requests
+                              ▼
+                    ┌────────────────────┐
+                    │      Backend       │
+                    │ Railway Service    │
+                    │    Node.js API     │
+                    └─────────┬──────────┘
+                              │ PostgreSQL Verbindung
+                              ▼
+                    ┌────────────────────┐
+                    │     PostgreSQL     │
+                    │ Managed Database   │
+                    │      Railway       │
+                    └────────────────────┘
+```
+
+---
+
+# Repository
+
+GitHub Repository:
+
+```text
+https://github.com/sltnaksy/feedback_board
+```
+
+---
+
+# Deployment-Methode
+
+Das Deployment ist vollständig reproduzierbar.
+
+Jeder Push auf das GitHub-Repository löst automatisch ein neues Deployment auf Railway aus.
+
+Der Ablauf:
+
+```text
+Git Push
+→ Railway erkennt Änderungen
+→ Docker Image Build
+→ Container Deployment
+→ Automatischer Neustart
+→ Aktualisierung der öffentlichen Services
+```
+
+Dadurch ist kein manuelles Deployment notwendig.
+
+---
+
+# Services
+
+## Backend-Service
+
+### Root Directory
+
+```text
+backend
+```
+
+### Verwendete Technologien
+
+* Node.js
+* Express.js
+* PostgreSQL
+* Docker
+
+### Funktionen
+
+* REST API
+* Health-Endpoint
+* strukturierte Logs
+* persistente PostgreSQL-Datenbank
+* automatische Neustarts durch Railway
+
+---
+
+## Frontend-Service
+
+### Root Directory
+
+```text
+frontend
+```
+
+### Verwendete Technologien
+
+* HTML
+* CSS
+* JavaScript
+* Nginx
+* Docker
+
+### Reverse Proxy Konfiguration
+
+Das Frontend verwendet Nginx als Reverse Proxy.
+
+Folgende Konfiguration war für Railway notwendig:
+
+```nginx
+proxy_pass http://feedbackboard.railway.internal:8080/api/;
+```
+
+Dadurch kann das Frontend intern mit dem Backend-Service kommunizieren.
+
+---
+
+## Datenbank-Service
+
+### Datenbanktyp
+
+Managed PostgreSQL-Datenbank von Railway.
+
+### Persistenz
+
+Die Datenbank verwendet persistente Speicherung.
+
+Die Daten bleiben erhalten bei:
+
+* Neustarts
+* Redeployments
+* Service-Restarts
+
+Damit wird die Anforderung eines persistenten Datenspeichers erfüllt.
+
+---
+
+# Environment-Variablen
+
+Sensible Daten sind nicht hardcoded im Repository gespeichert.
+
+Alle Konfigurationen werden über Railway Environment-Variablen verwaltet.
+
+## Backend Variablen
+
+```text
+NODE_ENV=production
+PORT=3000
+DB_HOST=${{Postgres.PGHOST}}
+DB_PORT=${{Postgres.PGPORT}}
+DB_NAME=${{Postgres.PGDATABASE}}
+DB_USER=${{Postgres.PGUSER}}
+DB_PASSWORD=${{Postgres.PGPASSWORD}}
+```
+
+Zusätzlich existiert eine:
+
+```text
+.env.example
+```
+
+Datei im Repository.
+
+---
+
+# Docker-Konfiguration
+
+Sowohl Frontend als auch Backend werden mit Docker deployt.
+
+## Backend
+
+```text
+backend/Dockerfile
+```
+
+## Frontend
+
+```text
+frontend/Dockerfile
+```
+
+Railway baut die Docker-Images automatisch während des Deployments.
+
+---
+
+# Logging
+
+Das Backend erzeugt strukturierte Logs.
+
+Beispiele:
+
+```text
+Database table is ready
+Backend started
+```
+
+Die Logs können direkt im Railway Dashboard eingesehen werden.
+
+Dadurch wird Debugging in der Cloud deutlich einfacher.
+
+---
+
+# Health-Endpoint
+
+Das Backend stellt folgenden Endpoint bereit:
+
+```text
+/health
+```
+
+Der Endpoint überprüft:
+
+* ob der Service läuft
+* ob die Datenbank erreichbar ist
+
+Beispielantwort:
+
+```json
+{
+  "status": "healthy",
+  "service": "backend",
+  "database": "reachable"
+}
+```
+
+---
+
+# CI/CD Integration
+
+Das Projekt enthält bereits eine CI/CD-Pipeline aus Auftrag C2.
+
+Die Pipeline:
+
+* baut Docker-Images
+* validiert die Anwendung
+* automatisiert den Build-Prozess
+
+C3 erweitert das Projekt durch das öffentliche Cloud-Deployment.
+
+---
+
+# Setup-Anleitung
+
+## Voraussetzungen
+
+* GitHub Account
+* Railway Account
+* Docker (optional für lokale Tests)
+
+---
+
+## Deployment-Schritte
+
+### 1. Repository klonen
+
+```bash
+git clone https://github.com/sltnaksy/feedback_board.git
+cd feedback_board
+```
+
+---
+
+### 2. Railway-Projekt erstellen
+
+* Neues Railway-Projekt erstellen
+* GitHub Repository verbinden
+
+---
+
+### 3. Backend deployen
+
+Backend-Konfiguration:
+
+```text
+Root Directory: backend
+```
+
+Öffentliche Domain generieren.
+
+---
+
+### 4. PostgreSQL hinzufügen
+
+Eine Railway PostgreSQL-Datenbank erstellen.
+
+Railway erstellt die benötigten Credentials automatisch.
+
+---
+
+### 5. Environment-Variablen konfigurieren
+
+Alle benötigten Variablen im Railway Dashboard setzen.
+
+---
+
+### 6. Frontend deployen
+
+Frontend-Konfiguration:
+
+```text
+Root Directory: frontend
+```
+
+Öffentliche Domain generieren.
+
+---
+
+# Probleme und Lösungen
+
+## Problem 1 – Backend Crash
+
+### Ursache
+
+Fehlende Datenbank-Variablen.
+
+### Lösung
+
+Folgende Railway-Variablen wurden ergänzt:
+
+```text
+DB_HOST
+DB_PORT
+DB_NAME
+DB_USER
+DB_PASSWORD
+```
+
+---
+
+## Problem 2 – Frontend konnte Backend nicht erreichen
+
+### Fehlermeldung
+
+```text
+host not found in upstream "backend"
+```
+
+### Ursache
+
+Docker-Compose interne Hostnamen funktionierten in Railway nicht.
+
+### Lösung
+
+Die Nginx-Konfiguration wurde angepasst:
+
+```nginx
+proxy_pass http://feedbackboard.railway.internal:8080/api/;
+```
+
+---
+
+# Sicherheitsaspekte
+
+Folgende Sicherheitsmassnahmen wurden umgesetzt:
+
+* keine Secrets im GitHub Repository
+* Nutzung von Environment-Variablen
+* automatisches HTTPS durch Railway
+* managed PostgreSQL-Datenbank
+* internes Railway-Netzwerk zwischen Services
+
+---
+
+# Reflexion und Learnings
+
+Während dieses Projekts habe ich gelernt:
+
+* wie PaaS-Plattformen funktionieren
+* wie Cloud-Deployments mit Docker umgesetzt werden
+* wie Railway internes Networking verwendet
+* wie Frontend und Backend in der Cloud kommunizieren
+* wie managed PostgreSQL-Datenbanken integriert werden
+* wie automatische Deployments nach Git-Push funktionieren
+* wie strukturierte Logs beim Debugging helfen
+
+Die grösste Herausforderung war die Kommunikation zwischen Frontend und Backend innerhalb des Railway-Netzwerks.
+
+Wenn ich das Projekt erneut umsetzen würde, würde ich:
+
+* das Service Discovery verbessern
+* die Environment-Konfiguration optimieren
+* zusätzliche automatisierte Tests integrieren
+* erweitertes Monitoring hinzufügen
+
+---
+
+# Deklaration KI-Nutzung
+
+Für dieses Projekt wurden KI-Tools verwendet für:
+
+* Troubleshooting
+* Deployment-Unterstützung
+* Dokumentation
+* Konfigurations-Erklärungen
+
+Alle Änderungen wurden überprüft und verstanden.
+
+---
+
